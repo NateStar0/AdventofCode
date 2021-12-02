@@ -1,5 +1,5 @@
 var fs = require("fs");
-var day = 2;
+var day = 3;
 var data = []; 
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
@@ -58,12 +58,52 @@ function run(input)
 		{ // 2
 			part1 : function ()
 			{
-				return "A"
+				var lines = input.split("\n");
+				var pos = { x : 0, y : 0} ;
+				
+				for(var i = 0; i < lines.length; i++)
+				{
+					var com = lines[i].split(" ")[0];
+					var dis = parseInt(lines[i].split(" ")[1]);
+					
+					switch(com)
+					{
+						case "forward": pos.x += dis; break;
+						case "up": pos.y -= dis; break;
+						case "down": pos.y += dis; break;
+					}
+				}
+				
+				
+				
+				return pos.x * pos.y
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var lines = input.split("\n");
+				var pos = { x : 0, y : 0} ;
+				var ang = 0;
+				
+				for(var i = 0; i < lines.length; i++)
+				{
+					var com = lines[i].split(" ")[0];
+					var dis = parseInt(lines[i].split(" ")[1]);
+					
+					switch(com)
+					{
+						case "forward": 
+							pos.x += dis; 
+							pos.y += ang * dis;
+						break;
+						case "up": ang -= dis; break;
+						case "down": ang += dis; break;
+					}
+				}
+				
+				
+				
+				return pos.x * pos.y
 			}
 		},
 		
@@ -343,4 +383,9 @@ function run(input)
 			}
 		}
 	]
+}
+
+function lengthdir(l, d)
+{
+	return { x : l * Math.cos(d), y : l * -Math.sin(d) };
 }
