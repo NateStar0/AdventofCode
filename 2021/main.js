@@ -1,5 +1,5 @@
 var fs = require("fs");
-var day = 4;
+var day = 5;
 var data = []; 
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
@@ -206,12 +206,162 @@ function run(input)
 		{ // 4
 			part1 : function ()
 			{
-				return "A"
+				//Separate all thye shit into: 
+				//				An array of the selection sequence
+				//				An array of 2D arrays, this contains all our bingo tiles
+				var split = input.replace(/  /g, " ").split("\n\n");
+				var order = split.splice(0, 1)[0].split(",");
+
+				for(var i = 0; i < split.length; i++) { split[i] = split[i].split("\n") }
+				for(var i = 0; i < split.length; i++)
+				{
+					for(var j = 0; j < split[i].length; j++)
+					{
+						split[i][j] = split[i][j].split(" ");
+						if(split[i][j][0] == '') split[i][j].splice(0, 1);
+					}
+				}
+				for(var i = 0; i < split.length; i++)
+				{
+					for(var j = 0; j < split[i].length; j++)
+					{
+						for(var k = 0; k < split[i][j].length; k++)
+						{
+							split[i][j][k] = [split[i][j][k], false];
+						}
+					}
+				}
+
+				//Cycle through all enteries in the array of boards, 
+				var found = false;
+				for(var i = 0; i < order.length; i++)
+				{
+					if(!found)
+					{
+						for(var j = 0; j < split.length; j++)
+						{
+							// Set a tile
+							for(var k = 0; k < split[j].length; k++)
+							{
+								for(var l = 0; l < split[j][k].length; l++)
+								{
+									if(parseInt(order[i]) == parseInt(split[j][k][l][0])) split[j][k][l][1] = true;
+								}
+							}
+
+							//Find a bingo
+							for(var k = 0; k < 5; k++)
+							{
+								if((split[j][k][0][1] && split[j][k][1][1] && split[j][k][2][1] && split[j][k][3][1] && split[j][k][4][1]) ||
+									(split[j][0][k][1] && split[j][1][k][1] && split[j][2][k][1] && split[j][3][k][1] && split[j][4][k][1])) 
+								{
+
+									found = true;
+									
+									var sum = 0;
+									for(var x = 0; x < split[j].length; x++)
+									{
+										for(var y = 0; y < split[j][x].length; y++)
+										{
+											if(!split[j][x][y][1]) sum += parseInt(split[j][x][y][0]);
+										}
+									}
+
+									return sum * parseInt(order[i]);
+								}
+							}
+						}
+
+						//log(split[0])
+					}
+				}
+
+				return 0//[order, split]
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				//Separate all thye shit into: 
+				//				An array of the selection sequence
+				//				An array of 2D arrays, this contains all our bingo tiles
+				var split = input.replace(/  /g, " ").split("\n\n");
+				var order = split.splice(0, 1)[0].split(",");
+
+				for(var i = 0; i < split.length; i++) { split[i] = split[i].split("\n") }
+				for(var i = 0; i < split.length; i++)
+				{
+					for(var j = 0; j < split[i].length; j++)
+					{
+						split[i][j] = split[i][j].split(" ");
+						if(split[i][j][0] == '') split[i][j].splice(0, 1);
+					}
+				}
+				for(var i = 0; i < split.length; i++)
+				{
+					for(var j = 0; j < split[i].length; j++)
+					{
+						for(var k = 0; k < split[i][j].length; k++)
+						{
+							split[i][j][k] = [split[i][j][k], false];
+						}
+					}
+				}
+
+				//Cycle through all enteries in the array of boards, 
+				var found = false;
+				var rec = "";
+				for(var i = 0; i < order.length; i++)
+				{
+					if(!found)
+					{
+						for(var j = split.length - 1; j >= 0 ; j--)
+						{
+							// Set a tile
+							for(var k = 0; k < split[j].length; k++)
+							{
+								for(var l = 0; l < split[j][k].length; l++)
+								{
+									if(parseInt(order[i]) == parseInt(split[j][k][l][0])) split[j][k][l][1] = true;
+								}
+							}
+
+							//Find a bingo
+							var cont = true;
+							for(var k = 0; k < 5; k++)
+							{
+								if(cont)
+								{
+									if((split[j][k][0][1] && split[j][k][1][1] && split[j][k][2][1] && split[j][k][3][1] && split[j][k][4][1]) ||
+										(split[j][0][k][1] && split[j][1][k][1] && split[j][2][k][1] && split[j][3][k][1] && split[j][4][k][1])) 
+									{
+										
+										if(split.length != 1)
+										{
+											split.splice(j, 1);
+											cont = false
+										}
+										else
+										{
+											found = true;
+											rec = order[i]
+										}
+									}
+								}
+							}		
+						}
+					}
+				}
+				
+				var sum = 0;
+				for(var x = 0; x < split[0].length; x++)
+				{
+					for(var y = 0; y < split[0][x].length; y++)
+					{
+						if(!split[0][x][y][1]) sum += parseInt(split[0][x][y][0]);
+					}
+				}
+
+				return sum * parseInt(rec);
 			}
 		},
 		
