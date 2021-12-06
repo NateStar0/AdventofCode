@@ -1,5 +1,5 @@
 var fs = require("fs");
-var day = 5;
+var day = 6;
 var data = []; 
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
@@ -368,24 +368,190 @@ function run(input)
 		{ // 5
 			part1 : function ()
 			{
-				return "A"
+				var split = input.split("\n");
+
+				for(var i = 0; i < split.length; i++)
+				{
+					split[i] = split[i].split(" -> ");
+
+					for(var j = 0; j < split[i].length; j++)
+					{
+						split[i][j] = split[i][j].split(",");
+					}
+				}
+
+				var size = 1000;
+				var checkpad = createArray(size, size);
+
+				for(var i = 0; i < checkpad.length; i++)
+				{
+					for(var j = 0; j < checkpad[i].length; j++)
+					{
+						checkpad[i][j] = 0;
+					}
+				}
+
+				for(var i = 0; i < split.length; i++)
+				{
+					
+					var p = { x1 : parseInt(split[i][0][0]), y1 : parseInt(split[i][0][1]), x2 : parseInt(split[i][1][0]), y2 : parseInt(split[i][1][1])}
+					
+					if(p.x1 == p.x2 || p.y1 == p.y2)
+					{
+						console.log("This one works!", p)
+						checkpad[p.x1][p.y1]++;
+						//checkpad[p.x2][p.y2]++;
+
+						while(p.x1 != p.x2 || p.y1 != p.y2)
+						{
+							if(p.x1 != p.x2)
+							{
+								if(p.x1 > p.x2) p.x1--;
+								else p.x1++;
+							}
+
+							if(p.y1 != p.y2)
+							{
+								if(p.y1 > p.y2) p.y1--;
+								else p.y1++;
+							}
+
+							checkpad[p.x1][p.y1]++;
+						}
+					}
+				}
+
+				var count = 0;
+				for(var i = 0; i < checkpad.length; i++)
+				{
+					for(var j = 0; j < checkpad[i].length; j++)
+					{
+						if(checkpad[i][j] > 1) count++;
+					}
+				}
+				
+				return count
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input.split("\n");
+
+				for(var i = 0; i < split.length; i++)
+				{
+					split[i] = split[i].split(" -> ");
+
+					for(var j = 0; j < split[i].length; j++)
+					{
+						split[i][j] = split[i][j].split(",");
+					}
+				}
+
+				var size = 1000;
+				var checkpad = createArray(size, size);
+
+				for(var i = 0; i < checkpad.length; i++)
+				{
+					for(var j = 0; j < checkpad[i].length; j++)
+					{
+						checkpad[i][j] = 0;
+					}
+				}
+
+				for(var i = 0; i < split.length; i++)
+				{
+					
+					var p = { x1 : parseInt(split[i][0][0]), y1 : parseInt(split[i][0][1]), x2 : parseInt(split[i][1][0]), y2 : parseInt(split[i][1][1])}
+					
+					if(1)//p.x1 == p.x2 || p.y1 == p.y2)
+					{
+						console.log("This one works!", p)
+						checkpad[p.x1][p.y1]++;
+						//checkpad[p.x2][p.y2]++;
+
+						while(p.x1 != p.x2 || p.y1 != p.y2)
+						{
+							if(p.x1 != p.x2)
+							{
+								if(p.x1 > p.x2) p.x1--;
+								else p.x1++;
+							}
+
+							if(p.y1 != p.y2)
+							{
+								if(p.y1 > p.y2) p.y1--;
+								else p.y1++;
+							}
+
+							checkpad[p.x1][p.y1]++;
+						}
+					}
+				}
+
+				var count = 0;
+				for(var i = 0; i < checkpad.length; i++)
+				{
+					for(var j = 0; j < checkpad[i].length; j++)
+					{
+						if(checkpad[i][j] > 1) count++;
+					}
+				}
+				
+				return count
 			}
 		},
 		
 		{ // 6
 			part1 : function ()
 			{
-				return "A"
+				var initial = input.split(",");
+				var counts = new Array(9);
+				var days = 80;
+
+				for(var i = 0; i < counts.length; i++) { counts[i] = 0 }
+
+				for(var i = 0; i < initial.length; i++)
+				{
+					counts[parseInt(initial[i])]++;
+				}
+
+				for(var counter = 0; counter < days; counter++)
+				{
+					var babies = counts.shift();
+					counts[6] += babies;
+					counts.push(babies);
+				}
+
+				var sum = 0;
+				for(var i = 0; i < counts.length; i++) { sum += counts[i] }
+
+				return sum
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var initial = input.split(",");
+				var counts = new Array(9);
+				var days = 256;
+
+				for(var i = 0; i < counts.length; i++) { counts[i] = 0 }
+
+				for(var i = 0; i < initial.length; i++)
+				{
+					counts[parseInt(initial[i])]++;
+				}
+
+				for(var counter = 0; counter < days; counter++)
+				{
+					var babies = counts.shift();
+					counts[6] += babies;
+					counts.push(babies);
+				}
+
+				var sum = 0;
+				for(var i = 0; i < counts.length; i++) { sum += counts[i] }
+
+				return sum
 			}
 		},
 		
@@ -623,6 +789,18 @@ function run(input)
 function lengthdir(l, d)
 {
 	return { x : l * Math.cos(d), y : l * -Math.sin(d) };
+}
+
+function createArray(length) {
+    var arr = new Array(length || 0),
+        i = length;
+
+    if (arguments.length > 1) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        while(i--) arr[length-1 - i] = createArray.apply(this, args);
+    }
+
+    return arr;
 }
 
 function log(a)
