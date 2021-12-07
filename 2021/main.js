@@ -1,5 +1,5 @@
 var fs = require("fs");
-var day = 6;
+var day = 8;
 var data = []; 
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
@@ -558,12 +558,54 @@ function run(input)
 		{ // 7
 			part1 : function ()
 			{
-				return "A"
+				var crabs = input.split(",");
+				var max = 0;
+				var lowest = [10000000000, 10000000000];
+
+				for(var i = 0; i < crabs.length; i++) { max = Math.max(max, parseInt(crabs[i])) }
+				
+				for(var i = 0; i < max; i++)
+				{
+					var cur = 0
+					
+					for(var j = 0; j < crabs.length; j++)
+					{
+						cur += dif(i, parseInt(crabs[j]));
+					}
+
+					if(cur < lowest[0])
+					{
+						lowest = [cur, i]
+					}
+				}
+
+				return lowest[0]
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var crabs = input.split(",");
+				var max = 0;
+				var lowest = [10000000000, 10000000000];
+
+				for(var i = 0; i < crabs.length; i++) { max = Math.max(max, parseInt(crabs[i])) }
+				
+				for(var i = 0; i < max; i++)
+				{
+					var cur = 0
+					
+					for(var j = 0; j < crabs.length; j++)
+					{
+						cur += stepfactorial(dif(i, parseInt(crabs[j])));
+					}
+
+					if(cur < lowest[0])
+					{
+						lowest = [cur, i]
+					}
+				}
+
+				return lowest[0]
 			}
 		},
 		
@@ -806,4 +848,25 @@ function createArray(length) {
 function log(a)
 {
 	console.log(a)
+}
+
+function sign(n)
+{
+	return (n == 0) ? 0 : ((n > 0) ? 1 : -1);
+}
+
+function dif(a, b)
+{
+	var d = a - b;
+	return (d >= 0) ? d : d * -1;
+}
+
+function stepfactorial(n)
+{
+	var sum = 0;
+	for(var i = 0; i <= n; i++)
+	{
+		sum += i;
+	}
+	return sum
 }
