@@ -2,3 +2,4 @@
 
 cd 2021
 node main.js
+cd ../
