@@ -1,3 +1,4 @@
+const { INSPECT_MAX_BYTES } = require("buffer");
 var fs = require("fs");
 var day = 11;
 var data = []; 
@@ -996,19 +997,112 @@ function run(input)
 			{
 				var split = input.split("\n").map(a => a.split("").map(Number));
 				var flashes = 0;
-				var cycles = 1;
+				var cycles = 100;
+
+				var increase = (inp, i, j, flashed = new Set()) =>
+				{
+					if(i < 0 || i >= inp.length || j < 0 || j >= inp[0].length || flashed.has(`${i}${j}`)) return;
+
+					inp[i][j]++;
+
+					if(inp[i][j] < 10) return;
+
+					flashed.add(`${i}${j}`);
+					inp[i][j] = 0;
+
+					for(var x = -1; x <= 1; x++)
+					{
+						for(var y = -1; y <= 1; y++)
+						{
+							if(!(x == y && x + y == 0))
+							{
+								increase(inp, i + x, j + y, flashed)
+							}
+						}
+					}
+				}
+
+				var gen = (inp) =>
+				{
+					var flashed = new Set();
+
+					for(var i = 0; i < inp.length; i++)
+					{
+						for(var j = 0; j < inp[i].length; j++)
+						{
+							increase(inp, i, j, flashed);
+						}
+					}
+
+					return flashed.size;
+				}
 
 				for(var naenae = 0; naenae < cycles; naenae++)
 				{
-					
+					flashes += gen(split)
 				}
 
-				return split
+				return flashes
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input.split("\n").map(a => a.split("").map(Number));
+				var flashes = 0;
+				var cycles = 0;
+
+				var increase = (inp, i, j, flashed = new Set()) =>
+				{
+					if(i < 0 || i >= inp.length || j < 0 || j >= inp[0].length || flashed.has(`${i}${j}`)) return;
+
+					inp[i][j]++;
+
+					if(inp[i][j] < 10) return;
+
+					flashed.add(`${i}${j}`);
+					inp[i][j] = 0;
+
+					for(var x = -1; x <= 1; x++)
+					{
+						for(var y = -1; y <= 1; y++)
+						{
+							if(!(x == y && x + y == 0))
+							{
+								increase(inp, i + x, j + y, flashed)
+							}
+						}
+					}
+				}
+
+				var gen = (inp) =>
+				{
+					var flashed = new Set();
+
+					for(var i = 0; i < inp.length; i++)
+					{
+						for(var j = 0; j < inp[i].length; j++)
+						{
+							increase(inp, i, j, flashed);
+						}
+					}
+
+					return flashed.size;
+				}
+
+				while(true)
+				{
+					flashes = gen(split)
+					console.log(flashes)
+					if(flashes == (split.length * split[0].length))
+					{
+						console.log(split.length * split[0].length)
+						break;
+					}
+
+					cycles ++;
+				}
+
+				return cycles + 1
 			}
 		},
 		
@@ -1205,3 +1299,6 @@ function sign(n)
 	return (n == 0) ? 0 : ((n > 0) ? 1 : -1);
 }
 
+function exists(arr, search) {
+    return arr.some(row => row.includes(search));
+}
