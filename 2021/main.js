@@ -1,6 +1,5 @@
-const { INSPECT_MAX_BYTES } = require("buffer");
 var fs = require("fs");
-var day = 11;
+var day = 12;
 var data = []; 
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
