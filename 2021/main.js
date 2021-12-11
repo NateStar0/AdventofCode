@@ -1,5 +1,5 @@
 var fs = require("fs");
-var day = 8;
+var day = 11;
 var data = []; 
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
@@ -14,6 +14,7 @@ fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d)
 function run(input)
 {
 	input = input.replace(/\r/g, "");
+
 	return [
 		{ // 1
 			part1 : function ()
@@ -570,7 +571,7 @@ function run(input)
 					
 					for(var j = 0; j < crabs.length; j++)
 					{
-						cur += dif(i, parseInt(crabs[j]));
+						cur += Math.abs(i - parseInt(crabs[j]));
 					}
 
 					if(cur < lowest[0])
@@ -596,7 +597,8 @@ function run(input)
 					
 					for(var j = 0; j < crabs.length; j++)
 					{
-						cur += stepfactorial(dif(i, parseInt(crabs[j])));
+						var f = Math.abs(i - parseInt(crabs[j]));
+						cur += ((f * f + f) / 2);
 					}
 
 					if(cur < lowest[0])
@@ -612,43 +614,396 @@ function run(input)
 		{ // 8
 			part1 : function ()
 			{
-				return "A"
+				var split = input.split("\n");
+				var sum = 0;
+
+				for(var i = 0; i < split.length; i++)
+				{
+					split[i] = split[i].split(" | ");
+
+					for(var j = 0; j < split[i].length; j++)
+					{
+						split[i][j] = split[i][j].split(" ")
+					}
+				}
+
+				for(var i = 0; i < split.length; i++)
+				{
+					for(var j = 0; j < split[i][1].length; j++)
+					{
+						switch(split[i][1][j].length)
+						{
+							case 2:
+							case 3:
+							case 4:
+							case 7:
+								sum ++;
+							break;
+						}
+					}
+				}
+
+				return sum
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input.split("\n");
+				var tot = 0;
+
+				for(var i = 0; i < split.length; i++)
+				{
+					split[i] = split[i].split(" | ");
+
+					for(var j = 0; j < split[i].length; j++)
+					{
+						split[i][j] = split[i][j].split(" ")
+
+						if(!j)
+						{
+							split[i][0].sort((a, b) => { return a.length - b.length})
+						}
+					}
+				}
+
+				for(var i = 0; i < split.length; i++)
+				{
+					var j = 0;
+					var no = {};
+					var tl = [];
+					var zn = [];
+					var letter = null;
+
+					while(Object.keys(no).length != 10)
+					{
+						var s = split[i][0][j];
+						switch(s.length)
+						{
+							case 2:
+								no[s.split('').sort().join('')] = '1'
+								tl = s.split("")
+							break;
+
+							case 3:
+								no[s.split('').sort().join('')] = '7'
+							break;
+
+							case 4:
+								no[s.split('').sort().join('')] = '4'
+
+								if (tl.length > 0) 
+								{
+									zn = s.split("")
+									zn = zn.filter(letter => !tl.includes(letter))
+								}
+							break;
+
+							case 5:
+								if (s.includes(tl[0]) && s.includes(tl[1])) 
+								{
+									no[s.split('').sort().join('')] = '3'
+								} 
+								else 
+								if (s.includes(letter) && tl.length > 0 && letter != null) 
+								{
+									no[s.split('').sort().join('')] = '5'
+								} 
+								else 
+								if (!s.includes(letter) && letter != null) 
+								{
+									no[s.split('').sort().join('')] = '2'
+								}
+
+							break;
+
+							case 6:
+								if (s.includes(tl[0]) && s.includes(tl[1]) && s.includes(zn[0]) && s.includes(zn[1])) 
+								{
+									no[s.split('').sort().join('')] = '9'
+								} 
+								else 
+								if ((!s.includes(tl[0]) || !s.includes(tl[1])) && (s.includes(zn[0]) && s.includes(zn[1]))) 
+								{
+									no[s.split('').sort().join('')] = '6'
+									if (s.includes(tl[0])) 
+									{
+										letter = tl[0]
+									} 
+									else 
+									{
+										letter = tl[1]
+									}
+								} 
+								else 
+								if (tl.length > 0 && zn.length > 0) 
+								{
+									no[s.split('').sort().join('')] = '0'
+								}
+							break;
+
+							case 7:
+								no[s.split('').sort().join('')] = '8'
+							break;
+
+							
+						}
+
+						j = (j == 9) ? 0 : j + 1;
+					}
+
+
+					var sum = ""
+
+					for (var s = 0; s < split[i][1].length; s++) 
+					{
+						sum += no[split[i][1][s].split('').sort().join('')]
+					}
+
+					tot += parseInt(sum);
+				}
+
+				return tot
 			}
 		},
 		
 		{ // 9
 			part1 : function ()
 			{
-				return "A"
+				var split = input.split("\n").map(a => a.split("").map(Number));
+				var sum = 0;
+
+				for(var i = 0; i < split.length; i++)
+				{
+					for(var j = 0; j < split[0].length; j++)
+					{
+						var a = (i > 0) ? split[i - 1][j] : 10;
+						var b = (i < split.length - 1) ? split[i + 1][j] : 10;
+						var c = (j > 0) ? split[i][j - 1] : 10;
+						var d = (j < split[0].length - 1) ? split[i][j + 1] : 10;
+
+						if(split[i][j] < a &&
+							split[i][j] < b &&
+							split[i][j] < c &&
+							split[i][j] < d)
+						{
+							sum += split[i][j] + 1;
+						}
+					}
+				}
+
+				return sum;
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input.split("\n").map(a => a.split("").map(Number));
+				var basins = [];
+
+				var neighbours = (x, y) =>
+				{
+					var p = [];
+					if(x > 0) p.push([x - 1, y])
+					if(y > 0) p.push([x, y - 1])
+					if(x < split.length - 1) p.push([x + 1, y])
+					if(y < split[0].length - 1) p.push([x, y + 1])
+					return p
+				}
+
+				var fill = (set, x, y) =>
+				{
+					if(set.has(`${x}x${y}`) || split[x][y] === 9) return;
+					set.add(`${x}x${y}`);
+					neighbours(x, y).forEach(([a, b]) => fill(set, a, b));
+					return set;
+				}
+
+				for(var i = 0; i < split.length; i++)
+				{
+					for(var j = 0; j < split[0].length; j++)
+					{
+						if(neighbours(i, j).every(([a, b]) => split[a][b] > split[i][j]))
+						{
+							basins.push(fill(new Set(), i, j).size);
+						}
+					}
+				}
+
+				return basins.sort((a, b) => b - a).slice(0, 3).reduce((a, v) => a * v, 1);
 			}
 		},
 		
 		{ // 10
 			part1 : function ()
 			{
-				return "A"
+				var split = input.split("\n");
+				var sum = 0;
+
+				var check = ["(", "{", "[", "<"]
+				var end = [")", "}", "]", ">"]
+				var points = [3, 1197, 57, 25137]
+
+				var flip = (c, check, end) =>
+				{
+					for(var i = 0; i < check.length; i++)
+					{
+						if(c == end[i]) return check[i];
+					}
+
+					return -1;
+				}
+
+				var score = (c, check) =>
+				{
+					for(var i = 0; i < check.length; i++)
+					{
+						if(c == check[i]) return points[i]
+					}
+				}
+
+				for(var i = 0; i < split.length; i++)
+				{
+					var stack = [];
+
+					var cont = true;
+
+					for(var j = 0; j < split[i].length; j++)
+					{
+						if(cont)
+						{
+							if(check.includes(split[i].charAt(j))) stack.push(split[i].charAt(j));
+
+							if(end.includes(split[i].charAt(j)))
+							{
+								if(stack[stack.length - 1] != flip(split[i].charAt(j), check, end))
+								{
+									sum += score(flip(split[i].charAt(j), check, end), check)
+									cont = false;
+								}
+								else
+								{
+									stack.splice(stack.length - 1, 1);
+								}
+							}
+						}
+					}
+				}
+
+				return sum
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input.split("\n");
+
+				var check = ["(", "{", "[", "<"]
+				var end = [")", "}", "]", ">"]
+				var points = [1, 3, 2, 4]
+				var scores = [];
+
+				var flip = (c, check, end) =>
+				{
+					for(var i = 0; i < check.length; i++)
+					{
+						if(c == end[i]) return check[i];
+					}
+
+					return -1;
+				}
+
+				var valorant = (c) =>
+				{
+					for(var i = 0; i < check.length; i++)
+					{
+						if(c == check[i]) return points[i];
+					}
+
+					return -1;
+				}
+
+				console.log(split.length)
+
+				// Weed out all of the stinky corrupt ones
+				for(var i = split.length - 1; i >= 0; i--)
+				{
+					var stack = [];
+
+					var cont = true;
+
+					for(var j = 0; j < split[i].length; j++)
+					{
+						if(cont)
+						{
+							if(check.includes(split[i].charAt(j))) stack.push(split[i].charAt(j));
+
+							if(end.includes(split[i].charAt(j)))
+							{
+								if(stack[stack.length - 1] != flip(split[i].charAt(j), check, end))
+								{
+									
+									split.splice(i, 1);
+									break;
+								}
+								else
+								{
+									stack.splice(stack.length - 1, 1);
+								}
+							}
+						}
+					}
+				}
+
+				console.log(split.length, split)
+
+				for(var i = 0; i < split.length; i++)
+				{
+					var stack = [];
+
+					for(var j = 0; j < split[i].length; j++)
+					{
+						if(check.includes(split[i].charAt(j))) stack.push(split[i].charAt(j));
+
+						if(end.includes(split[i].charAt(j)))
+						{
+							if(stack[stack.length - 1] == flip(split[i].charAt(j), check, end))
+							{
+								stack.splice(stack.length - 1, 1);
+							}
+						}
+					}
+
+					console.log(stack, split[i])
+
+					for(var j = stack.length -1; j >= 0; j--)
+					{
+						var thang = stack.splice(j, 1);
+
+						if(isNaN(scores[i])) 
+						{
+							scores[i] = 0;
+						}
+
+						scores[i] = scores[i] * 5;
+						scores[i] += valorant(thang);
+					}
+				}
+
+				return scores.sort((a, b) => a - b)[Math.floor(scores.length / 2)]
 			}
 		},
 		
 		{ // 11
 			part1 : function ()
 			{
-				return "A"
+				var split = input.split("\n").map(a => a.split("").map(Number));
+				var flashes = 0;
+				var cycles = 1;
+
+				for(var naenae = 0; naenae < cycles; naenae++)
+				{
+					
+				}
+
+				return split
 			},
 			
 			part2 : function ()
@@ -845,28 +1200,8 @@ function createArray(length) {
     return arr;
 }
 
-function log(a)
-{
-	console.log(a)
-}
-
 function sign(n)
 {
 	return (n == 0) ? 0 : ((n > 0) ? 1 : -1);
 }
 
-function dif(a, b)
-{
-	var d = a - b;
-	return (d >= 0) ? d : d * -1;
-}
-
-function stepfactorial(n)
-{
-	var sum = 0;
-	for(var i = 0; i <= n; i++)
-	{
-		sum += i;
-	}
-	return sum
-}
