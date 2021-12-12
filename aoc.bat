@@ -1,7 +1,5 @@
 @echo off
 
-set /p year="Enter Year: "
-
-cd %year%
+cd 2021
 node main.js
 cd ../

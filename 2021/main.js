@@ -1,5 +1,5 @@
 var fs = require("fs");
-var day = 12;
+var day = 13;
 var data = []; 
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
@@ -1108,12 +1108,109 @@ function run(input)
 		{ // 12
 			part1 : function ()
 			{
-				return "A"
+				var split = input.trim().split("\n")
+				var map = {};
+				var found = [];
+				
+				split.forEach(a => 
+				{
+					var [current, end] = a.split("-");
+					if(Array.isArray(map[current])) 
+					{
+						map[current].push(end)
+					}
+					else
+					{
+						map[current] = [end];
+					}
+
+					if(Array.isArray(map[end]))
+					{
+						map[end].push(current)
+					}
+					else
+					{
+						map[end] = [current];
+					}
+				})
+
+				var find = (p, c) =>
+				{
+					var next = [...c, p]
+
+					if(p == "end")
+					{
+						found.push(next);
+						return;
+					}
+
+					map[p].forEach(a => 
+					{
+						if(a.toLowerCase() !== a || c.indexOf(a) === -1) find(a, next);
+					})
+				}
+
+				find("start", []);
+
+				return found.length
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input.trim().split("\n")
+				var map = {};
+				var found = [];
+				
+				split.forEach(a => 
+				{
+					var [current, end] = a.split("-");
+					if(Array.isArray(map[current])) 
+					{
+						map[current].push(end)
+					}
+					else
+					{
+						map[current] = [end];
+					}
+
+					if(Array.isArray(map[end]))
+					{
+						map[end].push(current)
+					}
+					else
+					{
+						map[end] = [current];
+					}
+				})
+
+				var find = (p, c) =>
+				{
+					var next = [...c, p]
+					if(p === "start" && c.length > 0) return;
+					if(p === "end")
+					{
+						found.push(next);
+						return;
+					}
+
+					var count = {};
+					next.forEach(a => 
+					{
+						if(a.toLowerCase() === a) count[a] = (count[a] ?? 0) + 1;
+					})
+
+					var low = Object.values(count).some((v) => v > 1)
+
+					map[p].forEach(a => 
+					{
+						if(!low || a.toLowerCase() !== a || c.indexOf(a) === -1) find(a, next);
+					})
+
+				}
+
+				find("start", []);
+
+				return found.length
 			}
 		},
 		
