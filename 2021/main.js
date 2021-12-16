@@ -1,6 +1,12 @@
 var fs = require("fs");
-var day = 13;
+var dk = require("dijkstrajs");
+const { version } = require("os");
+var day = 16;
 var data = []; 
+
+String.prototype.ssplice = function(idx, rem, str) {
+    return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
+};
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
 {
@@ -1217,48 +1223,502 @@ function run(input)
 		{ // 13
 			part1 : function ()
 			{
-				return "A"
+				var [dots, fold] = input.split("\n\n");
+
+				dots = dots.split("\n").map(a => a.split(",").map(Number));
+				fold = fold.split("\n").map(a =>
+				{
+					a = a.split(" ")[2].split("=");
+					a[1] = +a[1];
+					return a
+				})
+
+				var [mx, my] = [0, 0];
+				for(var i = 0; i < dots.length; i++)
+				{
+					mx = Math.max(mx, dots[i][0]);
+					my = Math.max(my, dots[i][1]);
+				}
+
+				var grid = [...Array(my + 1)].map(x => Array(mx + 1).fill(0));
+
+				for(var i = 0; i < dots.length; i++)
+				{
+					var [x, y] = dots[i];
+					grid[y][x] = 1;
+				}
+
+				for(var i = 0; i < fold.length; i++)
+				{
+					var [axis, val] = fold[i];
+
+					switch(axis)
+					{
+						case "y":
+							for (var x = 0; x < grid[0].length; x++) 
+							{
+								for (var y = 0; y < val; y++) 
+								{
+									grid[y][x] = grid[y][x] | grid[2 * val - y]?.[x];
+								}
+							  }
+							  grid.length = val;
+						break;
+
+						case "x":
+							for (var y = 0; y < grid.length; y++) 
+							{
+								for (var x = 0; x < val; x++) 
+								{
+									grid[y][x] = grid[y][x] | grid[y][2 * val - x];
+								}
+								grid[y].length = val;
+							}
+						break;
+					}
+
+					if(!i) return grid.flat().filter(Boolean).length;
+				}
+
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var [dots, fold] = input.split("\n\n");
+
+				dots = dots.split("\n").map(a => a.split(",").map(Number));
+				fold = fold.split("\n").map(a =>
+				{
+					a = a.split(" ")[2].split("=");
+					a[1] = +a[1];
+					return a
+				})
+
+				var [mx, my] = [0, 0];
+				for(var i = 0; i < dots.length; i++)
+				{
+					mx = Math.max(mx, dots[i][0]);
+					my = Math.max(my, dots[i][1]);
+				}
+
+				var grid = [...Array(my + 1)].map(x => Array(mx + 1).fill(0));
+
+				for(var i = 0; i < dots.length; i++)
+				{
+					var [x, y] = dots[i];
+					grid[y][x] = 1;
+				}
+
+				for(var i = 0; i < fold.length; i++)
+				{
+					var [axis, val] = fold[i];
+
+					switch(axis)
+					{
+						case "y":
+							for (var x = 0; x < grid[0].length; x++) 
+							{
+								for (var y = 0; y < val; y++) 
+								{
+									grid[y][x] = grid[y][x] | grid[2 * val - y]?.[x];
+								}
+							  }
+							  grid.length = val;
+						break;
+
+						case "x":
+							for(var y = 0; y < grid.length; y++) 
+							{
+								for(var x = 0; x < val; x++) 
+								{
+									grid[y][x] = grid[y][x] | grid[y][2 * val - x];
+								}
+								grid[y].length = val;
+							}
+						break;
+					}
+				}
+
+				return "\n" + grid.map((line) => line.map((dot) => (dot ? '0' : ' ')).join('')).join('\n')	
 			}
 		},
 		
 		{ // 14
 			part1 : function ()
 			{
-				return "A"
+				var [template, rules] = input.split("\n\n");
+				var [high, low] = [0, 99999999999];
+
+				rules = rules
+						.split("\n")
+						.map(a => 
+							a.split("\n")
+							.map(b => {
+								b = b.split(" -> ")
+								b[0] = b[0].split("")
+								return b }));
+
+				for(var r = 0; r < 10; r++)
+				{
+					var n = [];
+					low = 99999999999;
+
+					for(var i = 0; i < rules.length; i++)
+					{
+						var [chk, rep] = rules[i][0];
+
+						for(var j = 0; j < template.length; j++)
+						{
+							if(template.charAt(j) == chk[0] && template.charAt(j + 1) == chk[1])
+							{
+								n.push([j + 1, rep])
+							}
+						}
+					}
+
+					n.sort((a, b) => a[0] - b[0]);
+
+					for(var i = 0; i < n.length; i++)
+					{
+						template = template.ssplice(n[i][0] + i, 0, n[i][1]);
+					}
+
+					var char = charCount(template);
+					for(var i in char)
+					{
+						high = Math.max(high, char[i]);
+						low = Math.min(low, char[i]);
+
+					}
+				}
+				return high - low;
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var [template, rules] = input.split('\n\n');
+
+				var nextPairs = rules.split('\n').reduce((acc, rule) => 
+				{
+					var [left, right] = rule.split(' -> ');
+					acc[left] = [left[0] + right, right + left[1]];
+					return acc;
+				}, {});
+
+				var count = {};
+
+				for (var i = 0; i < template.length - 1; i++) 
+				{
+					var pair = template.slice(i, i + 2);
+					count[pair] = (count[pair] ?? 0) + 1;
+				}
+
+				for (var step = 0; step < 40; step++) 
+				{
+					var ncount = {};
+					for (var pair in count) 
+					{
+						for (var nextPair of nextPairs[pair]) 
+						{
+							ncount[nextPair] = (ncount[nextPair] ?? 0) + count[pair];
+						}
+					}
+					count = ncount;
+				}
+
+				var el = {
+					[template[0]]: 1,
+				};
+
+				for (var pair in count) {
+					el[pair[1]] = (el[pair[1]] ?? 0) + count[pair];
+				}
+
+				var val = Object.values(el);
+				return (Math.max(...val) - Math.min(...val));
 			}
 		},
 		
 		{ // 15
 			part1 : function ()
 			{
-				return "A"
+				var split = input.split("\n").map((a) => a.split("").map(Number))
+				
+				for(var i = 0; i < split.length; i++)
+				{
+					for(var j = 0; j < split[i].length; j++)
+					{
+						if(i == 0 && j == 0) continue;
+
+						if(i == 0) split[i][j] += split[i][j - 1];
+						else if(j == 0) split[i][j] += split[i- 1][j];
+						else split[i][j] += Math.min(split[i- 1][j], split[i][j - 1])
+					}
+				}
+
+				return split[split.length - 1][split[0].length - 1] - split[0][0];
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input.split("\n").map(s => s.split('').map(Number));
+				var start = [...split];
+				var sum = 0;
+				var exp = 5;
+
+				var inc = function(grid, t) 
+				{
+					for(var i = 0; i < t; i++) 
+					{
+						grid = grid.map(s => 
+						{
+							return s.map(y =>
+							{
+								return (y == 9) ? 1 : y + 1;
+							})
+						})
+					}
+					return grid;
+				}
+
+
+
+				//for 4 times
+				for(var i = 1; i < exp; i++) 
+				{
+					var tile = inc(start,i);
+					split = split.map((s,ind) => s.concat(tile[ind]));
+				}
+
+				var alsoStartingTile = [...split];
+
+				for(var i = 1; i < exp; i++) 
+				{
+					var tile = inc(alsoStartingTile,i)
+					tile.forEach(element => 
+						{
+						split.push(element)
+					});	
+				}
+
+
+				var objectify = function(g) {
+					var obj = {};
+
+					for (var y = 0; y < g.length; y++) 
+					{
+						for (var x = 0; x < g[y].length; x++) 
+						{ 
+							obj[y+','+x] = {};
+							var adj = [];
+							
+							if(y > 0) adj.push({x: x, y: y-1})
+							if(y < g.length - 1) adj.push({x: x, y: y + 1})
+							if(x > 0) adj.push({x: x-1, y: y})
+							if(x < g[y].length - 1) adj.push({x: x + 1, y: y})
+
+							for(var f = 0; f < adj.length; f++) 
+							{
+								var a = adj[f]
+								var n = g[a.y][a.x]
+
+								obj[y+','+x][adj[f].y+','+ adj[f].x] = n;
+							}
+						}
+					}
+
+					return obj;
+				}
+
+				var path = dk.find_path(objectify(split), '0,0',`${split.length-1},${split[0].length-1}`);
+
+				for(var i =- 0; i < path.length; i++)
+				{
+					var e = path[i].split(",").map(Number);
+					sum += split[e[0]][e[1]];
+				}
+				
+				return sum - split[0][0]
 			}
 		},
 		
 		{ // 16
 			part1 : function ()
 			{
-				return "A"
+				var bin = input
+				.split("")
+				.map(a => 
+					{
+						a = parseInt(a, 16)
+							.toString(2)
+							.padStart(4, "0");
+						return a;
+					})
+				.join()
+				.replace(/,/g, "");
+				
+					
+				var versionsum = 0;
+				var byte = function(str)
+				{
+					versionsum += parseInt(str.slice(0, 3), 2);
+					var id = parseInt(str.slice(3, 6), 2);
+					var p;
+					var val = [];
+
+					if (id == 4) 
+					{
+						var ol = 6;
+						var num = "";
+
+						while (str[ol] == '1') 
+						{
+							num += str.slice(ol + 1, ol + 5);
+							ol += 5;
+						}
+
+						num += str.slice(ol + 1, ol + 5);
+
+						return [ol + 5, parseInt(num, 2)];
+					} 
+					else 
+					{
+						var ot = str[6];
+
+						if (ot == '0') 
+						{
+							var l = parseInt(str.slice(7,22),2);
+							var cnt = 0;
+
+							while (cnt < l) 
+							{
+								var pkt = byte(str.slice(22 + cnt));
+								cnt += pkt[0];
+								val.push(pkt[1]);
+							}
+
+							p = 22 + l;
+
+						} 
+						else 
+						{
+							var l = parseInt(str.slice(7, 18), 2);
+							var cnt = 18;
+
+							for (var i = 0; i < l; i++) 
+							{
+								var pkt = byte(str.slice(cnt));
+								cnt += pkt[0];
+								val.push(pkt[1]);
+							}
+
+							p = cnt;
+						}
+					
+						switch (id) 
+						{
+							case 0: return [p, val.reduce((a, b) => a + b)];
+							case 1: return [p, val.reduce((a, b) => a * b)];
+							case 2: return [p, val.reduce((a, b) => Math.min(a, b))];
+							case 3: return [p, val.reduce((a, b) => Math.max(a, b))];
+							case 5: return [p, (val[0] > val[1]) ? 1 : 0];
+							case 6: return [p, (val[0] < val[1]) ? 1 : 0];
+							case 7: return [p, (val[0] == val[1]) ? 1 : 0];
+						}
+					}
+				}
+				
+				var res = byte(bin);
+				return versionsum;
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var bin = input
+				.split("")
+				.map(a => 
+					{
+						a = parseInt(a, 16)
+							.toString(2)
+							.padStart(4, "0");
+						return a;
+					})
+				.join()
+				.replace(/,/g, "");
+				
+					
+				var versionsum = 0;
+				var byte = function(str)
+				{
+					versionsum += parseInt(str.slice(0, 3), 2);
+					var id = parseInt(str.slice(3, 6), 2);
+					var p;
+					var val = [];
+
+					if (id == 4) 
+					{
+						var ol = 6;
+						var num = "";
+
+						while (str[ol] == '1') 
+						{
+							num += str.slice(ol + 1, ol + 5);
+							ol += 5;
+						}
+
+						num += str.slice(ol + 1, ol + 5);
+
+						return [ol + 5, parseInt(num, 2)];
+					} 
+					else 
+					{
+						var ot = str[6];
+
+						if (ot == '0') 
+						{
+							var l = parseInt(str.slice(7,22),2);
+							var cnt = 0;
+
+							while (cnt < l) 
+							{
+								var pkt = byte(str.slice(22 + cnt));
+								cnt += pkt[0];
+								val.push(pkt[1]);
+							}
+
+							p = 22 + l;
+
+						} 
+						else 
+						{
+							var l = parseInt(str.slice(7, 18), 2);
+							var cnt = 18;
+
+							for (var i = 0; i < l; i++) 
+							{
+								var pkt = byte(str.slice(cnt));
+								cnt += pkt[0];
+								val.push(pkt[1]);
+							}
+
+							p = cnt;
+						}
+					
+						switch (id) 
+						{
+							case 0: return [p, val.reduce((a, b) => a + b)];
+							case 1: return [p, val.reduce((a, b) => a * b)];
+							case 2: return [p, val.reduce((a, b) => Math.min(a, b))];
+							case 3: return [p, val.reduce((a, b) => Math.max(a, b))];
+							case 5: return [p, (val[0] > val[1]) ? 1 : 0];
+							case 6: return [p, (val[0] < val[1]) ? 1 : 0];
+							case 7: return [p, (val[0] == val[1]) ? 1 : 0];
+						}
+					}
+				}
+				
+				var res = byte(bin);
+				return res[1];
 			}
 		},
 		
@@ -1397,4 +1857,25 @@ function sign(n)
 
 function exists(arr, search) {
     return arr.some(row => row.includes(search));
+}
+
+function occurences2D (arr, val)
+{
+	var count = 0;
+	arr.forEach(a => count += a.filter(x => x == val).length);
+	return count
+}
+
+function charCount(str)
+{
+	var counts = {};
+	var ch, index, len, count;
+
+	for (index = 0, len = str.length; index < len; ++index) {
+		ch = str.charAt(index); 
+		count = counts[ch];
+		counts[ch] = count ? count + 1 : 1;
+	}
+
+	return counts
 }
