@@ -1,7 +1,6 @@
 var fs = require("fs");
 var dk = require("dijkstrajs");
-const { version } = require("os");
-var day = 16;
+var day = 17;
 var data = []; 
 
 String.prototype.ssplice = function(idx, rem, str) {
@@ -1725,12 +1724,107 @@ function run(input)
 		{ // 17
 			part1 : function ()
 			{
-				return "A"
+				var range = input
+					.split(" ")
+					.splice(2, 2)
+					.map(a =>
+					{
+						a = a.split("=")[1]
+							.replace(/,/g, "")
+							.split("..")
+							.map(Number)
+							.sort((c, d) => d - c)
+						return a;
+					});
+
+				var fling = function(range)
+				{
+					var arg = range[1].map(a => { return Math.abs(a) }).sort((a, b) => b - a)[0]
+					var pos = { x : 0, y : 0 };
+					var int = { x : 0, y : 0 };
+
+					for(var i = 1; i <= range[0][1]; i++)
+					{
+						for(var j = arg; j >= -arg; --j)
+						{
+							pos = { x : 0, y : 0 };
+							int = { x : parseInt(i.toString(10)), y : parseInt(j.toString(10)) };
+
+
+							while (!(pos.y < range[1][1])) 
+							{
+								if (pos.x >= range[0][1] && pos.x <= range[0][0] && pos.y >= range[1][1] && pos.y <= range[1][0])
+								{
+									return (j * (j + 1)) / 2;
+								} 
+
+								pos.x += int.x;
+								pos.y += int.y;
+								int.x -= sign(int.x);
+								int.y -= 1;
+							}
+
+							if (pos.x < range[0][1]) break;
+						}
+					}
+					
+				}
+				
+				return fling(range);
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var range = input
+					.split(" ")
+					.splice(2, 2)
+					.map(a =>
+					{
+						a = a.split("=")[1]
+							.replace(/,/g, "")
+							.split("..")
+							.map(Number)
+							.sort((c, d) => d - c)
+						return a;
+					});
+
+				var fling = function(range)
+				{
+					var arg = range[1].map(a => { return Math.abs(a) }).sort((a, b) => b - a)[0];
+					var pos = { x : 0, y : 0 };
+					var int = { x : 0, y : 0 };
+					var sum = 0;
+
+					for(var i = 1; i <= range[0][0]; ++i)
+					{
+						for(var j = arg; j >= -arg; --j)
+						{
+							pos = { x : 0, y : 0 };
+							int = { x : parseInt(i.toString(10)), y : parseInt(j.toString(10)) };
+
+
+							while (!(pos.y < range[1][1])) 
+							{
+								if (pos.x >= range[0][1] && pos.x <= range[0][0] && pos.y >= range[1][1] && pos.y <= range[1][0])
+								{
+									++sum;
+									break;
+								} 
+
+								pos.x += int.x;
+								pos.y += int.y;
+								int.x -= sign(int.x);
+								int.y -= 1;
+							}
+
+							if (pos.x < range[0][1]) break;
+						}
+					}
+					
+					return sum;
+				}
+				
+				return fling(range);
 			}
 		},
 		
