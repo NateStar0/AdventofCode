@@ -1,10 +1,11 @@
 var fs = require("fs");
 var dk = require("dijkstrajs");
-var day = 17;
+var _ = require("underscore");
+var day = 25;
 var data = []; 
 
 String.prototype.ssplice = function(idx, rem, str) {
-    return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
+		return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
 };
 
 fs.readFile('./Inputs/' + day + '.txt', 'utf8', function(e, d) 
@@ -215,7 +216,7 @@ function run(input)
 				//Separate all thye shit into: 
 				//				An array of the selection sequence
 				//				An array of 2D arrays, this contains all our bingo tiles
-				var split = input.replace(/  /g, " ").split("\n\n");
+				var split = input.replace(/	/g, " ").split("\n\n");
 				var order = split.splice(0, 1)[0].split(",");
 
 				for(var i = 0; i < split.length; i++) { split[i] = split[i].split("\n") }
@@ -290,7 +291,7 @@ function run(input)
 				//Separate all thye shit into: 
 				//				An array of the selection sequence
 				//				An array of 2D arrays, this contains all our bingo tiles
-				var split = input.replace(/  /g, " ").split("\n\n");
+				var split = input.replace(/	/g, " ").split("\n\n");
 				var order = split.splice(0, 1)[0].split(",");
 
 				for(var i = 0; i < split.length; i++) { split[i] = split[i].split("\n") }
@@ -1260,8 +1261,8 @@ function run(input)
 								{
 									grid[y][x] = grid[y][x] | grid[2 * val - y]?.[x];
 								}
-							  }
-							  grid.length = val;
+								}
+								grid.length = val;
 						break;
 
 						case "x":
@@ -1321,8 +1322,8 @@ function run(input)
 								{
 									grid[y][x] = grid[y][x] | grid[2 * val - y]?.[x];
 								}
-							  }
-							  grid.length = val;
+								}
+								grid.length = val;
 						break;
 
 						case "x":
@@ -1831,133 +1832,1368 @@ function run(input)
 		{ // 18
 			part1 : function ()
 			{
-				return "A"
+				var split = input
+							.split('\n')
+							.map(s => s
+									.split(',')
+									.join("")
+									.trim())
+							.map(s => s
+									.split("")
+									.map(a => isNaN(a) ? a : Number(a)))
+
+				var sum = split[0];
+				
+				var add = (a, b) =>
+				{
+					return ["[",...a,...b,"]"];
+				}
+				
+				var explode = (a) =>
+				{
+					var open = 0;
+
+					for (var i = 0; i < a.length; i++) 
+					{
+						var e = a[i];
+
+						if(e == "[")open++;
+						if(e == "]")open--;
+
+						if(open == 5)
+						{
+							var buf = a.splice(i, 4);
+							var up = i - 1;
+							var down = i;
+
+							while(down--)
+							{
+								if(!isNaN(a[down]))
+								{
+									a[down] += buf[1];
+									break;
+								}
+							}
+
+							while(up++ < a.length)
+							{
+								if(!isNaN(a[up]))
+								{
+									a[up] += buf[2];
+									break;
+								}
+							}
+
+							a.splice(i, 0, 0);
+							explode(a);
+
+							return true;
+						}
+					}
+
+					return false;
+				}
+				
+				var shard = (a) =>
+				{
+					for (var i = 0; i < a.length; i++) 
+					{
+						var e = a[i];
+
+						if(!isNaN(e) && e > 9)
+						{
+							var l = Math.floor(e / 2);
+							var h = Math.ceil(e / 2);
+							var s = ['[',l,h,']'];
+							a.splice(i, 1, ...s);
+							return true;
+						}
+					}
+
+					return false;
+				}
+				
+				var magnitude = (a) =>
+				{
+					for (var i = 0; i < a.length; i++) 
+					{
+						var e = a[i];
+
+						if(e == "]")
+						{
+							var buf = a.splice(i - 3, 4);
+							var sum = buf[1] * 3 + buf[2] * 2;
+
+							a.splice(i-3,0,sum);
+							i -= 3;
+						}
+					}
+					return a;
+				}
+				
+				for (var i = 0; i < split.length - 1; i++) 
+				{
+					sum = add(sum, split[i + 1]);
+
+					while(explode(sum) || shard(sum));
+				}
+
+				return magnitude(sum)[0];
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input
+							.split('\n')
+							.map(s => s
+									.split(',')
+									.join("")
+									.trim())
+							.map(s => s
+									.split("")
+									.map(a => isNaN(a) ? a : Number(a)))
+				
+				var sum = split[0];
+				
+				var add = (a, b) =>
+				{
+					return ["[",...a,...b,"]"];
+				}
+				
+				var explode = (a) =>
+				{
+					var open = 0;
+
+					for (var i = 0; i < a.length; i++) 
+					{
+						var e = a[i];
+
+						if(e == "[")open++;
+						if(e == "]")open--;
+
+						if(open == 5)
+						{
+							var buf = a.splice(i, 4);
+							var up = i - 1;
+							var down = i;
+
+							while(down--)
+							{
+								if(!isNaN(a[down]))
+								{
+									a[down] += buf[1];
+									break;
+								}
+							}
+
+							while(up++ < a.length)
+							{
+								if(!isNaN(a[up]))
+								{
+									a[up] += buf[2];
+									break;
+								}
+							}
+
+							a.splice(i, 0, 0);
+							explode(a);
+
+							return true;
+						}
+					}
+
+					return false;
+				}
+				
+				var shard = (a) =>
+				{
+					for (var i = 0; i < a.length; i++) 
+					{
+						var e = a[i];
+
+						if(!isNaN(e) && e > 9)
+						{
+							var l = Math.floor(e / 2);
+							var h = Math.ceil(e / 2);
+							var s = ['[',l,h,']'];
+							a.splice(i, 1, ...s);
+							return true;
+						}
+					}
+
+					return false;
+				}
+				
+				var magnitude = (a) =>
+				{
+					for (var i = 0; i < a.length; i++) 
+					{
+						var e = a[i];
+
+						if(e == "]")
+						{
+							var buf = a.splice(i - 3, 4);
+							var sum = buf[1] * 3 + buf[2] * 2;
+
+							a.splice(i-3,0,sum);
+							i -= 3;
+						}
+					}
+					return a;
+				}
+				
+				var max = 0;
+
+				for (var i = 0; i < split.length - 1; i++) 
+				{ 
+					for (var j = 0; j < split.length; j++) 
+					{
+						if(i != j){
+							sum = add(split[i],split[j]);
+
+							while(explode(sum) || shard(sum));
+							max = Math.max( max, magnitude(sum));
+						}
+					}
+				}
+
+				return max;
 			}
 		},
 		
 		{ // 19
 			part1 : function ()
 			{
-				return "A"
+				var rots = 
+				[
+					([x, y, z]) => [x, y, z],
+					([x, y, z]) => [y, z, x],
+					([x, y, z]) => [z, x, y],
+					([x, y, z]) => [-x, z, y],
+					([x, y, z]) => [z, y, -x],
+					([x, y, z]) => [y, -x, z],
+					([x, y, z]) => [x, z, -y],
+					([x, y, z]) => [z, -y, x],
+					([x, y, z]) => [-y, x, z],
+					([x, y, z]) => [x, -z, y],
+					([x, y, z]) => [-z, y, x],
+					([x, y, z]) => [y, x, -z],
+					([x, y, z]) => [-x, -y, z],
+					([x, y, z]) => [-y, z, -x],
+					([x, y, z]) => [z, -x, -y],
+					([x, y, z]) => [-x, y, -z],
+					([x, y, z]) => [y, -z, -x],
+					([x, y, z]) => [-z, -x, y],
+					([x, y, z]) => [x, -y, -z],
+					([x, y, z]) => [-y, -z, x],
+					([x, y, z]) => [-z, x, -y],
+					([x, y, z]) => [-x, -z, -y],
+					([x, y, z]) => [-z, -y, -x],
+					([x, y, z]) => [-y, -x, -z],
+				];
+
+				var transform = (s, r, d) => 
+				{
+					return s.map((b) => 
+					{
+						return r(b).map((c, i) => {
+						return c + d[i];
+						});
+					});
+				}
+
+				var scanners = input.split('\n\n').map((scanner) => 
+				{
+					return scanner
+					.split('\n')
+					.slice(1)
+					.map((line) => line.split(',').map(Number));
+				});
+
+				// figure out all overlapping detection cubes
+				var transforms = scanners.map(() => ({}));
+				transforms[0] = 
+				{
+					0: 
+					[
+						{
+							rot: rots[0],
+							dist: [0, 0, 0],
+						},
+					],
+				};
+
+				for (var i = 1; i < scanners.length; i++) 
+				{
+					var scanner1 = scanners[i];
+
+					scanner2Loop: for (var j = 0; j < scanners.length; j++) {
+
+						if (i === j) 
+						{
+							continue;
+						}
+
+						var scanner2 = scanners[j];
+						for (var rot of rots) 
+						{
+							var distCounts = {};
+							for (var beacon1 of scanner1) 
+							{
+								var [x1, y1, z1] = rot(beacon1);
+								for (var beacon2 of scanner2) 
+								{
+									var [x2, y2, z2] = beacon2;
+									var dist = [x2 - x1, y2 - y1, z2 - z1].join();
+									distCounts[dist] = (distCounts[dist] ?? 0) + 1;
+
+									if (distCounts[dist] === 12) 
+									{
+										transforms[i][j] = 
+										[
+											{
+											rot,
+											dist: dist.split(',').map(Number),
+											},
+										];
+
+										continue scanner2Loop;
+									}
+								}
+							}
+						}
+
+					}
+				}
+
+				while (transforms.some((t) => !t[0])) 
+				{
+					for (var i = 1; i < transforms.length; i++) 
+					{
+						if (transforms[i][0]) 
+						{
+							continue;
+						}
+
+						for (var j in transforms[i]) 
+						{
+							if (!transforms[j][0]) 
+							{
+								continue;
+							}
+
+							transforms[i][0] = transforms[i][j].concat(transforms[j][0]);
+							break;
+						}
+					}
+				}
+
+				var beacons = new Set(scanners[0].map((beacon) => beacon.join()));
+
+				for (var i = 1; i < scanners.length; i++) 
+				{
+						var scanner = scanners[i];
+
+						for (var { rot, dist } of transforms[i][0]) 
+						{
+							scanner = transform(scanner, rot, dist);
+						}
+
+						for (var beacon of scanner) 
+						{
+							beacons.add(beacon.join());
+						}
+				}
+
+				return beacons.size;
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var rots = 
+				[
+					([x, y, z]) => [x, y, z],
+					([x, y, z]) => [y, z, x],
+					([x, y, z]) => [z, x, y],
+					([x, y, z]) => [-x, z, y],
+					([x, y, z]) => [z, y, -x],
+					([x, y, z]) => [y, -x, z],
+					([x, y, z]) => [x, z, -y],
+					([x, y, z]) => [z, -y, x],
+					([x, y, z]) => [-y, x, z],
+					([x, y, z]) => [x, -z, y],
+					([x, y, z]) => [-z, y, x],
+					([x, y, z]) => [y, x, -z],
+					([x, y, z]) => [-x, -y, z],
+					([x, y, z]) => [-y, z, -x],
+					([x, y, z]) => [z, -x, -y],
+					([x, y, z]) => [-x, y, -z],
+					([x, y, z]) => [y, -z, -x],
+					([x, y, z]) => [-z, -x, y],
+					([x, y, z]) => [x, -y, -z],
+					([x, y, z]) => [-y, -z, x],
+					([x, y, z]) => [-z, x, -y],
+					([x, y, z]) => [-x, -z, -y],
+					([x, y, z]) => [-z, -y, -x],
+					([x, y, z]) => [-y, -x, -z],
+				];
+
+				var transform = (s, r, d) => 
+				{
+					return s.map((b) => 
+					{
+						return r(b).map((c, i) => {
+						return c + d[i];
+						});
+					});
+				}
+
+				var scanners = input.split('\n\n').map((scanner) => 
+				{
+					return scanner
+					.split('\n')
+					.slice(1)
+					.map((line) => line.split(',').map(Number));
+				});
+
+				// figure out all overlapping detection cubes
+				var transforms = scanners.map(() => ({}));
+				transforms[0] = 
+				{
+					0: 
+					[
+						{
+							rot: rots[0],
+							dist: [0, 0, 0],
+						},
+					],
+				};
+
+				for (var i = 1; i < scanners.length; i++) 
+				{
+					var scanner1 = scanners[i];
+
+					scanner2Loop: for (var j = 0; j < scanners.length; j++) {
+
+						if (i === j) 
+						{
+							continue;
+						}
+
+						var scanner2 = scanners[j];
+						for (var rot of rots) 
+						{
+							var distCounts = {};
+							for (var beacon1 of scanner1) 
+							{
+								var [x1, y1, z1] = rot(beacon1);
+								for (var beacon2 of scanner2) 
+								{
+									var [x2, y2, z2] = beacon2;
+									var dist = [x2 - x1, y2 - y1, z2 - z1].join();
+									distCounts[dist] = (distCounts[dist] ?? 0) + 1;
+
+									if (distCounts[dist] === 12) 
+									{
+										transforms[i][j] = 
+										[
+											{
+											rot,
+											dist: dist.split(',').map(Number),
+											},
+										];
+
+										continue scanner2Loop;
+									}
+								}
+							}
+						}
+
+					}
+				}
+
+				while (transforms.some((t) => !t[0])) 
+				{
+					for (var i = 1; i < transforms.length; i++) 
+					{
+						if (transforms[i][0]) 
+						{
+							continue;
+						}
+
+						for (var j in transforms[i]) 
+						{
+							if (!transforms[j][0]) 
+							{
+								continue;
+							}
+
+							transforms[i][0] = transforms[i][j].concat(transforms[j][0]);
+							break;
+						}
+					}
+				}
+
+				// find max distance
+				var scannerCoords = [[0, 0, 0]];
+				for (var i = 1; i < scanners.length; i++) 
+				{
+					var scanner = [[0, 0, 0]];
+
+					for (var { rot, dist } of transforms[i][0]) 
+					{
+						scanner = transform(scanner, rot, dist);
+					}
+
+					scannerCoords.push(scanner[0]);
+				}
+
+				var maxDist = 0;
+				for (var i = 0; i < scannerCoords.length - 1; i++) 
+				{
+					var [x1, y1, z1] = scannerCoords[i];
+
+					for (var j = 1; j < scannerCoords.length; j++) 
+					{
+						var [x2, y2, z2] = scannerCoords[j];
+						maxDist = Math.max(
+							maxDist,
+							Math.abs(x2 - x1) + Math.abs(y2 - y1) + Math.abs(z2 - z1)
+						);
+					}
+				}
+					
+				return (maxDist);
 			}
 		},
 		
 		{ // 20
 			part1 : function ()
 			{
-				return "A"
+				var [alg, img] = input.replace(/#/g, "1").replace(/\./g, "0").split("\n\n");
+				alg = alg.split("");
+				img = img.split("\n").map(a => a.split(""));
+
+				var adj = [
+					[-1, -1],
+					[-1, 0],
+					[-1, 1],
+					[0, -1],
+					[0, 0],
+					[0, 1],
+					[1, -1],
+					[1, 0],
+					[1, 1]
+				];
+				
+				var enhance = (a, im, t) =>
+				{
+					var ng = [];
+
+					for (var i = -1; i < im.length + 1; i++) 
+					{
+						var row = [];
+
+						for (var j = -1; j < im.length + 1; j++) 
+						{
+							var col = [];
+				
+							adj.forEach(([io, ro]) => 
+							{
+								col.push(im[i + io]?.[j + ro] ?? a[0] & t % 2);
+							})
+
+							row.push(a[parseInt(col.join(''), 2)]);
+						}
+
+						ng.push(row);
+					}
+					return ng;
+				}
+				
+				
+				var solve = (alg, img, times) =>
+				{
+					for (var t = 0; t < times; t++) 
+					{
+						img = enhance(alg, img, t);
+					}
+
+					return img.flat().filter((e) => e == 1).length;
+				}
+
+				return solve(alg, img, 2)
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var [alg, img] = input.replace(/#/g, "1").replace(/\./g, "0").split("\n\n");
+				alg = alg.split("");
+				img = img.split("\n").map(a => a.split(""));
+
+				var adj = [
+					[-1, -1],
+					[-1, 0],
+					[-1, 1],
+					[0, -1],
+					[0, 0],
+					[0, 1],
+					[1, -1],
+					[1, 0],
+					[1, 1]
+				];
+				
+				var enhance = (a, im, t) =>
+				{
+					var ng = [];
+
+					for (var i = -1; i < im.length + 1; i++) 
+					{
+						var row = [];
+
+						for (var j = -1; j < im.length + 1; j++) 
+						{
+							var col = [];
+				
+							adj.forEach(([io, ro]) => 
+							{
+								col.push(im[i + io]?.[j + ro] ?? a[0] & t % 2);
+							})
+
+							row.push(a[parseInt(col.join(''), 2)]);
+						}
+
+						ng.push(row);
+					}
+					return ng;
+				}
+				
+				
+				var solve = (alg, img, times) =>
+				{
+					for (var t = 0; t < times; t++) 
+					{
+						img = enhance(alg, img, t);
+					}
+
+					return img.flat().filter((e) => e == 1).length;
+				}
+
+				return solve(alg, img, 50)
 			}
 		},
 		
 		{ // 21
 			part1 : function ()
 			{
-				return "A"
+				var starts = input.split("\n").map(a => { return parseInt(a.split(": ")[1]) })
+
+				var p1 = 
+				{
+					pos: starts[0],
+					score: 0
+				}
+
+				var p2 = 
+				{
+					pos: starts[1],
+					score: 0
+				}
+
+				var cur = p1;
+				var dice = 1;
+
+				while (true) 
+				{
+					var rol = 3 * dice + 3;
+					cur.pos = ((cur.pos - 1 + rol) % 10) + 1;
+					cur.score += cur.pos;
+
+					dice += 3;
+			
+					if(cur.score >= 1000) 
+					{
+						break;
+					}
+
+					cur = cur === p1 ? p2 : p1;
+				}
+				
+				return (Math.min(p1.score, p2.score) * (dice - 1));
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var starts = input.split("\n").map(a => { return parseInt(a.split(": ")[1]) })
+				var p1 = {
+					pos: starts[0],
+					score: 0
+				}
+
+				var p2 = {
+					pos: starts[1],
+					score: 0
+				}
+				
+				
+				var run = (p1, p2, p1Turn) =>
+				{
+
+					if (p1.score >= 21) return 1;
+					if (p2.score >= 21) return 0;
+
+					var cur = p1Turn ? p1 : p2;
+
+					var sum = 0;
+
+					for (var out = 3; out <= 9; out++) 
+					{
+						var op = cur.pos;
+						var os = cur.score;
+
+						cur.pos = ((cur.pos - 1 + out) % 10) + 1;
+						cur.score += cur.pos;
+
+						sum += dist(out) * run(p1, p2, !p1Turn);
+
+						cur.pos = op;
+						cur.score = os;
+					}
+
+					return sum;
+				}
+				
+				var dist = (num) =>
+				{
+					switch (num) {
+						case 3: return 1;	 
+						case 4: return 3;	 
+						case 5: return 6;	
+						case 6: return 7;	
+						case 7: return 6;	
+						case 8: return 3;	
+						case 9: return 1;	 
+					}
+				}
+
+				return (run(p1, p2, true));
 			}
 		},
 		
 		{ // 22
 			part1 : function ()
 			{
-				return "A"
+				var split = input.replace(/on/g, "1").replace(/off/g, "0").split("\n").map(a => a.split(" "));
+				var culm = new Set();
+
+				split.forEach(a => 
+				{
+					a[0] = parseInt(a[0]);
+					a[1] = a[1].split(",").map(b => { return b.split("=")[1].split("..").map(Number); })
+
+					return a;
+				})
+
+				for(var i = 0; i < split.length; i++)
+				{
+					var [mode, range] = split[i];
+
+					if((range[0][0] >= -50 && range[0][1] <= 50) || (range[1][0] >= -50 && range[1][1] <= 50) || (range[2][0] >= -50 && range[2][1] <= 50))
+					{
+						if(mode)
+						{
+							for(var x = range[0][0]; x <= range[0][1]; x++)
+							{
+								for(var y = range[1][0]; y <= range[1][1]; y++)
+								{
+									for(var z = range[2][0]; z <= range[2][1]; z++)
+									{
+										if(!culm.has(`${x},${y},${z}`))
+										{
+											culm.add(`${x},${y},${z}`);
+										}
+									}
+								}
+							}
+						}
+						else
+						{
+							for(var x = range[0][0]; x <= range[0][1]; x++)
+							{
+								for(var y = range[1][0]; y <= range[1][1]; y++)
+								{
+									for(var z = range[2][0]; z <= range[2][1]; z++)
+									{
+										if(culm.has(`${x},${y},${z}`)) culm.delete(`${x},${y},${z}`)
+									}
+								}
+							}
+						}
+					}
+				}
+
+				return culm.size
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var instructions = input.replace(/on/g, "1").replace(/off/g, "0").split('\n').map(a => [a.substr(0, 2), [...a.substr(3).matchAll(/-?\d+/g)].map(b => parseInt(b[0]))]);
+				var sum = 0;
+				var boxes = [];
+
+				var lov = (mn1, mx1, mn2, mx2) => [Math.max(mn1, mn2), Math.min(mx1, mx2)];
+				var vol = (b) => (b.x2 - b.x1 + 1) * (b.y2 - b.y1 + 1) * (b.z2 - b.z1 + 1);
+
+				var nbox = (x1, x2, y1, y2, z1, z2) => ({
+					x1: x1,
+					x2: x2,
+					y1: y1,
+					y2: y2,
+					z1: z1,
+					z2: z2
+				});
+
+				var overlap = (box, boxes) =>
+				{
+					return boxes.map(b => 
+					{
+						var [omnX, omxX] = lov(box.x1, box.x2, b.x1, b.x2);
+						var [omnY, omxY] = lov(box.y1, box.y2, b.y1, b.y2);
+						var [omnZ, omxZ] = lov(box.z1, box.z2, b.z1, b.z2);
+
+						if (omxX - omnX >= 0 && omxY - omnY >= 0 && omxZ - omnZ >= 0) 
+						{
+							var temp_box = nbox(omnX, omxX, omnY, omxY, omnZ, omxZ);
+							return vol(temp_box) - overlap(temp_box, boxes.slice(1 + boxes.indexOf(b)));
+						} 
+						else 
+						{
+							return 0;
+						}
+					}).reduce((a, b) => a + b, 0);
+				}
+
+				_.each(instructions.reverse(), i => 
+				{
+					var box = nbox(...i[1]);
+
+					parseInt(i[0]) && (sum += vol(box) - overlap(box, boxes));
+					boxes.push(box);
+				})
+
+				return sum;
 			}
 		},
 		
 		{ // 23
 			part1 : function ()
 			{
-				return "A"
+				var raw = input;
+
+				var inpp = (raw) => 
+				{
+					var letters = {
+						A: 0,
+						B: 1,
+						C: 2,
+						D: 3,
+					};
+					
+					var toads = raw
+						.split("\n")
+						.slice(2, 4)
+						.map((s) =>
+						s
+							.trim()
+							.replace(/#/g, "")
+							.split("")
+							.map((l) => letters[l]),
+						);
+					
+					var hallway = [...Array(11)].map((_, i) =>
+						i > 0 && i < 10 && i % 2 === 0 ? null : false, );
+					
+					var rooms = [];
+
+					for (var i = 0; i < toads[0].length; i++) 
+					{
+						var room = [];
+
+						for (var j = 0; j < toads.length; j++) 
+						{
+							room.push(toads[j][i]);
+						}
+
+						rooms.push(room);
+					}
+					
+					return { hallway, rooms };
+				};
+					
+				var stateCosts = new Map();
+				var minimumCost = Infinity;
+					
+				var getStateKey = ({ hallway, rooms }) => hallway + "|" + rooms;
+					
+				var play = (state, init = false) => 
+				{
+						if (init) 
+						{
+							stateCosts.clear();
+							minimumCost = Infinity;
+						}
+						
+						if (state.cost > minimumCost) return;
+						
+						var { cost, hallway, rooms } = state;
+						var stateKey = getStateKey({ hallway, rooms });
+						
+						var won = rooms.every((room, i) => room.every((toad) => toad === i));
+						if (won) 
+						{
+							if (cost < minimumCost) 
+							{
+								minimumCost = cost;
+							}
+
+							return;
+						}
+						
+						if ((stateCosts.get(stateKey) ?? Infinity) <= cost) return;
+
+						stateCosts.set(stateKey, cost);
+						
+						for (var hallSpot = 0; hallSpot < hallway.length; hallSpot += 1) 
+						{
+							if (hallway[hallSpot] === null || hallway[hallSpot] === false) continue;
+						
+							var toad = hallway[hallSpot];
+						
+							if (rooms[toad].every((t) => t === toad || t === false)) 
+							{
+								var homeSpot = toad * 2 + 2;
+							
+								var allClear = false;
+
+								if (homeSpot > hallSpot) 
+								{
+									var ahead = hallway.slice(hallSpot + 1, homeSpot);
+
+									if (ahead.every((spot) => spot === false || spot === null)) 
+									{
+									allClear = true;
+									}
+								} 
+								else 
+								{
+									var behind = hallway.slice(homeSpot, hallSpot);
+									if (behind.every((spot) => spot === false || spot === null)) 
+									{
+										allClear = true;
+									}
+								}
+						
+							if (allClear) 
+							{
+								var roomIndex =
+								rooms[toad].filter((spot) => spot === false).length - 1;
+						
+								var newHallway = [...hallway];
+								var newRooms = JSON.parse(JSON.stringify(rooms));
+						
+								newHallway[hallSpot] = false;
+								newRooms[toad][roomIndex] = toad;
+						
+								var newCost =
+								(Math.abs(hallSpot - homeSpot) +
+									rooms[toad].filter((t) => t === false).length) *
+								10 ** toad;
+						
+								play({
+									cost: cost + newCost,
+									hallway: newHallway,
+									rooms: newRooms,
+								});
+							}
+						}
+					}
+					
+					for (var room = 0; room < rooms.length; room += 1) {
+						if (rooms[room].every((t) => t === room || t === false)) continue;
+					
+						var depth = rooms[room].filter((t) => t === false).length;
+						var toadSpot = room * 2 + 2;
+					
+						if (depth === rooms[0].length)continue;
+					
+						var tryHallSpot = (hallSpot) => 
+						{
+							var newHallway = [...hallway];
+							var newRooms = JSON.parse(JSON.stringify(rooms));
+						
+							newHallway[hallSpot] = rooms[room][depth];
+							newRooms[room][depth] = false;
+						
+							var newCost =
+								(depth + 1 + Math.abs(toadSpot - hallSpot)) * 10 ** rooms[room][depth];
+						
+							play({ cost: cost + newCost, hallway: newHallway, rooms: newRooms });
+						};
+					
+						for (var hallSpot = toadSpot - 1; hallSpot >= 0; hallSpot -= 1) 
+						{
+							if (hallway[hallSpot] === null) continue;
+							if (hallway[hallSpot] !== false) break;
+					
+						tryHallSpot(hallSpot);
+						}
+					
+						for (var hallSpot = toadSpot + 1; hallSpot < hallway.length; hallSpot += 1) {
+							if (hallway[hallSpot] === null) continue;
+							if (hallway[hallSpot] !== false) break;
+					
+							tryHallSpot(hallSpot);
+						}
+					}
+				};
+				
+				 
+				var state = { cost: 0, ...inpp(raw) };
+				play(state, true);
+
+				return minimumCost;
+					
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var raw = input;
+
+				var inpp = (raw) => 
+				{
+					var letters = {
+						A: 0,
+						B: 1,
+						C: 2,
+						D: 3,
+					};
+					
+					var toads = raw
+						.split("\n")
+						.slice(2, 4)
+						.map((s) =>
+						s
+							.trim()
+							.replace(/#/g, "")
+							.split("")
+							.map((l) => letters[l]),
+						);
+					
+					var hallway = [...Array(11)].map((_, i) =>
+						i > 0 && i < 10 && i % 2 === 0 ? null : false, );
+					
+					var rooms = [];
+
+					for (var i = 0; i < toads[0].length; i++) 
+					{
+						var room = [];
+
+						for (var j = 0; j < toads.length; j++) 
+						{
+							room.push(toads[j][i]);
+						}
+
+						rooms.push(room);
+					}
+					
+					return { hallway, rooms };
+				};
+					
+				var stateCosts = new Map();
+				var minimumCost = Infinity;
+					
+				var getStateKey = ({ hallway, rooms }) => hallway + "|" + rooms;
+					
+				var play = (state, init = false) => 
+				{
+						if (init) 
+						{
+							stateCosts.clear();
+							minimumCost = Infinity;
+						}
+						
+						if (state.cost > minimumCost) return;
+						
+						var { cost, hallway, rooms } = state;
+						var stateKey = getStateKey({ hallway, rooms });
+						
+						var won = rooms.every((room, i) => room.every((toad) => toad === i));
+						if (won) 
+						{
+							if (cost < minimumCost) 
+							{
+								minimumCost = cost;
+							}
+
+							return;
+						}
+						
+						if ((stateCosts.get(stateKey) ?? Infinity) <= cost) return;
+
+						stateCosts.set(stateKey, cost);
+						
+						for (var hallSpot = 0; hallSpot < hallway.length; hallSpot += 1) 
+						{
+							if (hallway[hallSpot] === null || hallway[hallSpot] === false) continue;
+						
+							var toad = hallway[hallSpot];
+						
+							if (rooms[toad].every((t) => t === toad || t === false)) 
+							{
+								var homeSpot = toad * 2 + 2;
+							
+								var allClear = false;
+
+								if (homeSpot > hallSpot) 
+								{
+									var ahead = hallway.slice(hallSpot + 1, homeSpot);
+
+									if (ahead.every((spot) => spot === false || spot === null)) 
+									{
+									allClear = true;
+									}
+								} 
+								else 
+								{
+									var behind = hallway.slice(homeSpot, hallSpot);
+									if (behind.every((spot) => spot === false || spot === null)) 
+									{
+										allClear = true;
+									}
+								}
+						
+							if (allClear) 
+							{
+								var roomIndex =
+								rooms[toad].filter((spot) => spot === false).length - 1;
+						
+								var newHallway = [...hallway];
+								var newRooms = JSON.parse(JSON.stringify(rooms));
+						
+								newHallway[hallSpot] = false;
+								newRooms[toad][roomIndex] = toad;
+						
+								var newCost =
+								(Math.abs(hallSpot - homeSpot) +
+									rooms[toad].filter((t) => t === false).length) *
+								10 ** toad;
+						
+								play({
+									cost: cost + newCost,
+									hallway: newHallway,
+									rooms: newRooms,
+								});
+							}
+						}
+					}
+					
+					for (var room = 0; room < rooms.length; room += 1) {
+						if (rooms[room].every((t) => t === room || t === false)) continue;
+					
+						var depth = rooms[room].filter((t) => t === false).length;
+						var toadSpot = room * 2 + 2;
+					
+						if (depth === rooms[0].length)continue;
+					
+						var tryHallSpot = (hallSpot) => 
+						{
+							var newHallway = [...hallway];
+							var newRooms = JSON.parse(JSON.stringify(rooms));
+						
+							newHallway[hallSpot] = rooms[room][depth];
+							newRooms[room][depth] = false;
+						
+							var newCost =
+								(depth + 1 + Math.abs(toadSpot - hallSpot)) * 10 ** rooms[room][depth];
+						
+							play({ cost: cost + newCost, hallway: newHallway, rooms: newRooms });
+						};
+					
+						for (var hallSpot = toadSpot - 1; hallSpot >= 0; hallSpot -= 1) 
+						{
+							if (hallway[hallSpot] === null) continue;
+							if (hallway[hallSpot] !== false) break;
+					
+						tryHallSpot(hallSpot);
+						}
+					
+						for (var hallSpot = toadSpot + 1; hallSpot < hallway.length; hallSpot += 1) {
+							if (hallway[hallSpot] === null) continue;
+							if (hallway[hallSpot] !== false) break;
+					
+							tryHallSpot(hallSpot);
+						}
+					}
+				};
+				
+
+				var state = { cost: 0, ...inpp(raw) };
+					
+				state.rooms[0] = [state.rooms[0][0], 3, 3, state.rooms[0][1]];
+				state.rooms[1] = [state.rooms[1][0], 2, 1, state.rooms[1][1]];
+				state.rooms[2] = [state.rooms[2][0], 1, 0, state.rooms[2][1]];
+				state.rooms[3] = [state.rooms[3][0], 0, 2, state.rooms[3][1]];
+					
+				play(state, true);
+
+				return minimumCost
 			}
 		},
 		
 		{ // 24
 			part1 : function ()
 			{
-				return "A"
+				var split = input.split("\n")
+				var terms = [];
+
+				for (var i = 0; i < split.length; i += 18) 
+				{
+					terms.push([4, 5, 15].map((j) => +split[i + j].split(' ')[2]));
+				}
+
+				var prev = [];
+				var digi = [];
+
+				for (var [i, [a, b, c]] of Object.entries(terms)) 
+				{
+					if (a === 1) 
+					{
+						prev.push([i, c]);
+					} 
+					else 
+					{
+						const [prevI, prevC] = prev.pop();
+						const complement = prevC + b;
+						digi[prevI] = Math.min(9, 9 - complement)
+						digi[i] = digi[prevI] + complement;
+					}
+				}
+				
+				return digi.join('');
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				var split = input.split("\n")
+				var terms = [];
+
+				for (var i = 0; i < split.length; i += 18) 
+				{
+					terms.push([4, 5, 15].map((j) => +split[i + j].split(' ')[2]));
+				}
+
+				var prev = [];
+				var digi = [];
+
+				for (var [i, [a, b, c]] of Object.entries(terms)) 
+				{
+					if (a === 1) 
+					{
+						prev.push([i, c]);
+					} 
+					else 
+					{
+						const [prevI, prevC] = prev.pop();
+						const complement = prevC + b;
+						digi[prevI] = Math.max(1, 1 - complement);
+						digi[i] = digi[prevI] + complement;
+					}
+				}
+
+				return digi.join('');
 			}
 		},
 		
 		{ // 25
 			part1 : function ()
 			{
-				return "A"
+				
+				var map = input.split("\n").map(a => a.split(""));
+				const height = map.length;
+				const width = map[0].length;
+
+				var moved = true;
+				var steps = 0;
+
+				// Handle right facing cucumbers
+				var newMap = dupArray(map);
+					
+				while (moved)
+				{
+					steps++;
+					moved = false;
+				
+					// Handle right facing cucumbers
+					var newMap = dupArray(map);
+
+					for(var i = 0; i < height; i++)
+					{
+						for(var j = 0; j < width; j++)
+						{
+							if(map[i][j] === '>' && map[i][(j+1) % width] === '.')
+							{
+								newMap[i][j] = '.';
+								newMap[i][(j+1) % width] = '>';
+								moved = true;
+							}
+						}
+					}
+					
+					// Handle down facing cucumbers
+					map = dupArray(newMap);
+
+					for(var i = 0; i < height; i++)
+					{
+						for(var j = 0; j < width; j++)
+						{
+							if(newMap[i][j] === 'v' && newMap[(i + 1) % height][j] === '.')
+							{
+								map[i][j] = '.';
+								map[(i + 1) % height][j] = 'v';
+								moved = true;
+							}
+						}
+					}
+					
+				}
+
+				return steps;
 			},
 			
 			part2 : function ()
 			{
-				return "B"
+				return "YOU DID IT!"
 			}
 		}
 	]
 }
 
-
-function lengthdir(l, d)
-{
-	return { x : l * Math.cos(d), y : l * -Math.sin(d) };
-}
-
 function createArray(length) {
-    var arr = new Array(length || 0),
-        i = length;
+	var arr = new Array(length || 0)
+	var i = length;
 
-    if (arguments.length > 1) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        while(i--) arr[length-1 - i] = createArray.apply(this, args);
-    }
+	if (arguments.length > 1) 
+	{
+			var args = Array.prototype.slice.call(arguments, 1);
+			while(i--) arr[length-1 - i] = createArray.apply(this, args);
+	}
 
-    return arr;
+	return arr;
 }
 
 function sign(n)
 {
 	return (n == 0) ? 0 : ((n > 0) ? 1 : -1);
-}
-
-function exists(arr, search) {
-    return arr.some(row => row.includes(search));
-}
-
-function occurences2D (arr, val)
-{
-	var count = 0;
-	arr.forEach(a => count += a.filter(x => x == val).length);
-	return count
 }
 
 function charCount(str)
@@ -1972,4 +3208,9 @@ function charCount(str)
 	}
 
 	return counts
+}
+
+function dupArray(a)
+{
+	return JSON.parse(JSON.stringify(a))
 }
