@@ -23,8 +23,8 @@ const currentDataPath = path.join(dataPath, `${process.argv[2]}.txt`);
 
 const task = require(processPath);
 
-fs.readFile(currentDataPath, 'utf8', (e, d) => 
+fs.readFile(currentDataPath, 'utf8', (err, data) => 
 {
-    if (e) throw e;
-    task.run(d);
+    if (err) throw err;
+    task.run(data);
 });
