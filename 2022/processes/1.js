@@ -5,7 +5,7 @@ module.exports =
     {
         let part1 = (data) =>
         {
-            let elves = data.split("\r\n\r\n").map(v => v.split("\r\n").map(Number));
+            let elves = data.split("\n\n").map(v => v.split("\n").map(Number));
 
             for(let i = 0; i < elves.length; i++)
             {
@@ -17,7 +17,7 @@ module.exports =
 
         let part2 = (data) =>
         {
-            let elves = data.split("\r\n\r\n").map(v => v.split("\r\n").map(Number));
+            let elves = data.split("\n\n").map(v => v.split("\n").map(Number));
 
             for(let i = 0; i < elves.length; i++)
             {
