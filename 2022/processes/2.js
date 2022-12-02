@@ -3,9 +3,10 @@ module.exports =
 {
     run(data)
     {
+        data = data.split("\n").map(n => n.split(" "));
+
         let part1 = (data) =>
         {
-            let moves = data.split("\n").map(n => n.split(" "));
             let score = 0;
             
             var points =
@@ -43,7 +44,7 @@ module.exports =
             }
 
 
-            moves.forEach((move) =>
+            data.forEach((move) =>
             {
                 let [opponent, yours] = move;
 
@@ -55,7 +56,6 @@ module.exports =
 
         let part2 = (data) =>
         {
-            let moves = data.split("\n").map(n => n.split(" "));
             let score = 0;
             
             var points =
@@ -88,10 +88,9 @@ module.exports =
             }
 
 
-            moves.forEach((move) =>
+            data.forEach((move) =>
             {
                 let [opponent, yours] = move;
-
                 score += (outcome[yours] + points[opponent][yours]);
             })
 
