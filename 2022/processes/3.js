@@ -10,7 +10,7 @@ module.exports =
 
         let priority = (char) =>
         {
-            return (char.toUpperCase() == char) ? char.charCodeAt(0) - 64 + 26 : char.charCodeAt(0) - 96;
+            return (char.toUpperCase() == char) ? char.charCodeAt(0) - ("A".charCodeAt(0) - 1) + 26 : char.charCodeAt(0) - ("a".charCodeAt(0) - 1);
         }
 
         data = data.split("\n")
@@ -56,7 +56,6 @@ module.exports =
 
                     if(team[1].includes(char) && team[2].includes(char))
                     {
-                        console.log(char)
                         sum += priority(char);
                         return
                     }
