@@ -5,15 +5,15 @@ module.exports =
     {
         let part1 = (data) =>
         {
-
+            return "";
         }
 
         let part2 = (data) =>
         {
-
+            return "";
         }
         
-        part1(data);
-        part2(data);
+        console.log(part1(data));
+        console.log(part2(data));
     }
 }
