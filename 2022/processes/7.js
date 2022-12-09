@@ -39,7 +39,7 @@ module.exports =
 
         let dirsz = {};
 
-        for(let i = 0; i < 200; i++) 
+        for(let i = 0; i < 10; i++) // Dont ask?
         {
             changed = false;
             mainLoop:
