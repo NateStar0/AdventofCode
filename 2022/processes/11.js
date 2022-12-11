@@ -33,13 +33,9 @@ module.exports =
                         times[i] ++;
 
                         let item = monkey.line.splice(0, 1)[0];
-
-                        // Operation
                         item = Math.floor(eval(monkey.operation.replace(/old/g, item)) / 3)
 
-                        // Test
-                        let test = (item % (monkey.test) == 0)
-                        monkeys[((test) ? (monkey.tmonk) : (monkey.fmonk))].line.push(item);
+                        monkeys[((item % (monkey.test) == 0) ? (monkey.tmonk) : (monkey.fmonk))].line.push(item);
                     };
                 }
             }
@@ -68,7 +64,7 @@ module.exports =
 
             let times = new Array(monkeys.length).fill(0);
 
-            let highestValue = monkeys.reduce((acc, monkey) => acc *= monkey.test, 1);
+            let high = monkeys.reduce((acc, monkey) => acc *= monkey.test, 1);
 
             for(let cycles = 0; cycles < 10000; cycles++)
             {
@@ -81,13 +77,9 @@ module.exports =
                         times[i] ++;
 
                         let item = monkey.line.splice(0, 1)[0];
+                        item = eval(monkey.operation.replace(/old/g, item)) % high;
 
-                        // Operation
-                        item = eval(monkey.operation.replace(/old/g, item)) % highestValue
-
-                        // Test
-                        let test = (item % (monkey.test) == 0)
-                        monkeys[((test) ? (monkey.tmonk) : (monkey.fmonk))].line.push(item);
+                        monkeys[((item % (monkey.test) == 0) ? (monkey.tmonk) : (monkey.fmonk))].line.push(item);
                     };
                 }
             }
