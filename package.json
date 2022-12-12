@@ -1,1 +1,5 @@
-{}
+{
+  "dependencies": {
+    "dijkstrajs": "^1.0.2"
+  }
+}
