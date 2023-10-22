@@ -28,3 +28,4 @@ fs.readFile(currentDataPath, 'utf8', (err, data) =>
     if (err) throw err;
     task.run(data.replace(/\r/g, ""));
 });
+
