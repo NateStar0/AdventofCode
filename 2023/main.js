@@ -17,7 +17,7 @@ if (process.argv.length < 3)
     process.exit(1);
 }
 
-const processesPath = path.join(__dirname, 'processes');
+const processesPath = path.join(__dirname, 'Solutions');
 const dataPath = path.join(__dirname, 'data');
 
 const processPath = path.join(processesPath, `${process.argv[2]}.js`);
