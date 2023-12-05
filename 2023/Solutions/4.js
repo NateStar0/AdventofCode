@@ -6,7 +6,9 @@ module.exports =
         let part1 = (data) =>
         {
             let sum = 0;
-            let cards = data.replace(/  /g, " ").split("\n")
+
+            data.replace(/  /g, " ")
+                .split("\n")
                     .map(card => card.split(": ")[1].split(" | ")
                         .map(numbers => numbers.split(" ").map(Number)))
                     .forEach(card =>
@@ -20,6 +22,7 @@ module.exports =
 
                         sum += (tally == 0) ? 0 : Math.pow(2, tally - 1);
                     })
+                    
             return sum
         }
 
