@@ -5,18 +5,13 @@ module.exports =
     {
         let part1 = (data) =>
         {
-            data = data.split("\n\n").map(machine =>
-            {
-                let [a, b, goal] = machine.split("\n").map(line => line.match(/-?\d+(\.\d+)?/g));
-
-                return {a : a, b : b, goal : goal}
-            })
+            data = data.split("\n\n").map(machine => machine.split("\n").map(line => line.match(/-?\d+(\.\d+)?/g).map(Number)));
 
             let sum = 0;
 
             data.forEach(machine =>
             {
-                let {a, b, goal} = machine;
+                let [a, b, goal] = machine;
                 // goal[0] = A * a[0] + B * b[0]
                 // goal[1] = A * a[1] + B * b[1]
 
@@ -35,8 +30,6 @@ module.exports =
                 {
                     sum += total
                 }
-
-                console.log(machine, A, B, 3 * B, total)
             })
 
             return sum
@@ -69,8 +62,6 @@ module.exports =
                     {
                         sum += total
                     }
-    
-                    console.log(machine, A, B, 3 * B, total)
                 })
     
                 return sum
